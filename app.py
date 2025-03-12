@@ -176,7 +176,7 @@ def main():
 
     st.sidebar.subheader("Custom Rules Usage")
     for rule, count in analytics["custom_rules_usage"].items():
-        st.sidebar.write(f"- **{rule.replace('_', ' ').title()}:** {count}")
+        st.sidebar.write(f"- **{rule.replace('_', ' ').title()}:** {'True' if count > 0 else 'False'}")
 
     if analytics["generated_password_lengths"]:
         avg_length = sum(analytics["generated_password_lengths"]) / len(analytics["generated_password_lengths"])
