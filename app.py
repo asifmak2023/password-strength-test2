@@ -14,11 +14,14 @@ analytics = {
     "generated_password_lengths": [],
 }
 
-# Custom CSS for UI
+# Custom CSS to improve UI layout
 st.markdown(
     """
     <style>
-    .main > div { padding-left: 0rem; padding-right: 0rem; }
+    .main > div {
+        padding-left: 0rem;
+        padding-right: 0rem;
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -173,7 +176,7 @@ def main():
 
     st.sidebar.subheader("Custom Rules Usage")
     for rule, count in analytics["custom_rules_usage"].items():
-        st.sidebar.write(f"- **{rule.replace('_', ' ').title()}:** {'True' if count > 0 else 'False'}")
+        st.sidebar.write(f"- **{rule.replace('_', ' ').title()}:** {count}")
 
     if analytics["generated_password_lengths"]:
         avg_length = sum(analytics["generated_password_lengths"]) / len(analytics["generated_password_lengths"])
