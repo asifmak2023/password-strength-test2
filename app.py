@@ -172,7 +172,7 @@ def main():
 
     st.sidebar.subheader("Password Strength Distribution")
     for strength, count in analytics["strength_distribution"].items():
-        st.sidebar.write(f"- **{strength}:** {'True' if count > 0 else 'False'}")
+        st.sidebar.write(f"- **{strength}:** {'Yes' if count > 0 else 'No'}")
 
     st.sidebar.subheader("Custom Rules Usage")
     for rule, count in analytics["custom_rules_usage"].items():
