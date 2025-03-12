@@ -6,7 +6,7 @@ import pandas as pd
 import altair as alt
 import plotly.graph_objects as go  # For speedometer gauge chart
 
-# Initialize analytics dictionary to track user interactions
+# Initialize analytics dictionary
 analytics = {
     "password_strength_checks": 0,
     "password_generations": 0,
@@ -75,14 +75,14 @@ def generate_password(length=12, include_upper=True, include_lower=True, include
 def visualize_character_counts(char_counts):
     char_counts_data = pd.DataFrame({"Character Type": list(char_counts.keys()), "Count": list(char_counts.values())})
 
-    char_chart = alt.Chart(char_counts_data).mark_bar().encode(
+    char_chart = alt.Chart(char_counts_data).mark_bar(size=40).encode(
         x=alt.X("Character Type:N", title="Character Type"),
         y=alt.Y("Count:Q", title="Count"),
         color=alt.Color("Character Type:N", legend=None),
         tooltip=["Character Type", "Count"]
-    ).properties(width=600, height=300, title="Character Count Visualization")
+    ).properties(width=400, height=300, title="Character Type Breakdown")
 
-    st.altair_chart(char_chart, use_container_width=True)
+    return char_chart
 
 # Function to show a speedometer gauge for password strength
 def show_speedometer(strength):
@@ -92,7 +92,7 @@ def show_speedometer(strength):
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=value,
-        title={"text": "Password Strength"},
+        title={"text": "Password Strength", "font": {"size": 20}},
         gauge={
             "axis": {"range": [0, 100]},
             "steps": [
@@ -104,7 +104,7 @@ def show_speedometer(strength):
         }
     ))
 
-    st.plotly_chart(fig, use_container_width=True)
+    return fig
 
 # Streamlit app
 def main():
@@ -145,12 +145,14 @@ def main():
             color = {"Strong": "🟢", "Moderate": "🟡", "Weak": "🔴"}[strength]
             st.write(f"**Strength:** {color} {strength}")
 
-            # Show Speedometer Gauge
-            show_speedometer(strength)
+            # Display both graphs side by side
+            col1, col2 = st.columns([1, 1])
 
-            # Show Character Count Bar Chart
-            st.write("### Character Count Breakdown")
-            visualize_character_counts(char_counts)
+            with col1:
+                st.plotly_chart(show_speedometer(strength), use_container_width=True)
+
+            with col2:
+                st.altair_chart(visualize_character_counts(char_counts), use_container_width=True)
 
             if feedback:
                 st.write("**Feedback:**")
@@ -174,9 +176,14 @@ def main():
 
             char_counts = count_character_types(password)
 
-            # Show Character Count Bar Chart for Generated Password
-            st.write("### Character Count Breakdown")
-            visualize_character_counts(char_counts)
+            # Display both graphs side by side for generated password
+            col1, col2 = st.columns([1, 1])
+
+            with col1:
+                st.plotly_chart(show_speedometer("Moderate"), use_container_width=True)
+
+            with col2:
+                st.altair_chart(visualize_character_counts(char_counts), use_container_width=True)
 
     # Move Analytics Dashboard to Sidebar
     st.sidebar.header("📊 Analytics Dashboard")
