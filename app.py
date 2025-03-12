@@ -5,6 +5,20 @@ import string
 import pandas as pd
 import altair as alt
 
+# Custom CSS for Sidebar Width
+st.markdown(
+    """
+    <style>
+        [data-testid="stSidebar"] {
+            min-width: 35% !important;
+            max-width: 35% !important;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
 # Initialize analytics dictionary to track user interactions
 analytics = {
     "password_strength_checks": 0,
