@@ -33,8 +33,6 @@ def count_character_types(password):
 def check_password_strength(password, min_length=8, require_upper=True, require_lower=True, require_digit=True, require_special=True):
     strength = 0
     feedback = []
-
-    # Count characters
     char_counts = count_character_types(password)
 
     if len(password) >= min_length:
@@ -78,6 +76,19 @@ def generate_password(length=12, include_upper=True, include_lower=True, include
         string.punctuation if include_special else "",
     ])
     return ''.join(secrets.choice(characters) for _ in range(length)) if characters else "No characters selected."
+
+# Function to visualize character counts
+def visualize_character_counts(char_counts):
+    char_counts_data = pd.DataFrame({"Character Type": list(char_counts.keys()), "Count": list(char_counts.values())})
+
+    char_chart = alt.Chart(char_counts_data).mark_bar().encode(
+        x=alt.X("Character Type:N", title="Character Type"),
+        y=alt.Y("Count:Q", title="Count"),
+        color=alt.Color("Character Type:N", legend=None),
+        tooltip=["Character Type", "Count"]
+    ).properties(width=600, height=300, title="Character Count Visualization")
+
+    st.altair_chart(char_chart, use_container_width=True)
 
 # Streamlit app
 def main():
@@ -126,8 +137,7 @@ def main():
                     st.write(f"- {item}")
 
             st.write("### Dynamic Character Counts")
-            for char_type, count in char_counts.items():
-                st.write(f"- **{char_type}:** {count}")
+            visualize_character_counts(char_counts)
 
     with tab2:
         st.header("🔑 Generate Strong Password")
@@ -147,8 +157,7 @@ def main():
             char_counts = count_character_types(password)
 
             st.write("### Dynamic Character Counts")
-            for char_type, count in char_counts.items():
-                st.write(f"- **{char_type}:** {count}")
+            visualize_character_counts(char_counts)
 
     # Move Analytics Dashboard to Sidebar
     st.sidebar.header("📊 Analytics Dashboard")
