@@ -160,6 +160,7 @@ def main():
             visualize_character_counts(char_counts)
 
     # Move Analytics Dashboard to Sidebar
+    
     st.sidebar.header("📊 Analytics Dashboard")
 
     st.sidebar.subheader("User Interactions")
