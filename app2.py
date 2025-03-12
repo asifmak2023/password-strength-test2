@@ -4,31 +4,24 @@ import secrets
 import string
 import pandas as pd
 import altair as alt
-import plotly.graph_objects as go  # Added for speedometer gauge
+import plotly.graph_objects as go  # For speedometer gauge chart
 
 # Initialize analytics dictionary to track user interactions
 analytics = {
     "password_strength_checks": 0,
     "password_generations": 0,
     "strength_distribution": {"Strong": 0, "Moderate": 0, "Weak": 0},
-    "custom_rules_usage": {
-        "require_upper": 0,
-        "require_lower": 0,
-        "require_digit": 0,
-        "require_special": 0
-    },
     "generated_password_lengths": [],
 }
 
 # Function to count character types in a password
 def count_character_types(password):
-    counts = {
+    return {
         "Uppercase": len(re.findall(r'[A-Z]', password)),
         "Lowercase": len(re.findall(r'[a-z]', password)),
         "Digits": len(re.findall(r'[0-9]', password)),
         "Special Characters": len(re.findall(r'[!@#$%^&*(),.?\":{}|<>]', password))
     }
-    return counts
 
 # Function to check password strength
 def check_password_strength(password, min_length=8, require_upper=True, require_lower=True, require_digit=True, require_special=True):
@@ -78,7 +71,20 @@ def generate_password(length=12, include_upper=True, include_lower=True, include
     ])
     return ''.join(secrets.choice(characters) for _ in range(length)) if characters else "No characters selected."
 
-# Function to visualize password strength as a speedometer
+# Function to visualize character counts using Altair
+def visualize_character_counts(char_counts):
+    char_counts_data = pd.DataFrame({"Character Type": list(char_counts.keys()), "Count": list(char_counts.values())})
+
+    char_chart = alt.Chart(char_counts_data).mark_bar().encode(
+        x=alt.X("Character Type:N", title="Character Type"),
+        y=alt.Y("Count:Q", title="Count"),
+        color=alt.Color("Character Type:N", legend=None),
+        tooltip=["Character Type", "Count"]
+    ).properties(width=600, height=300, title="Character Count Visualization")
+
+    st.altair_chart(char_chart, use_container_width=True)
+
+# Function to show a speedometer gauge for password strength
 def show_speedometer(strength):
     value_map = {"Weak": 30, "Moderate": 60, "Strong": 100}
     value = value_map.get(strength, 0)
@@ -139,7 +145,12 @@ def main():
             color = {"Strong": "🟢", "Moderate": "🟡", "Weak": "🔴"}[strength]
             st.write(f"**Strength:** {color} {strength}")
 
-            show_speedometer(strength)  # Show speedometer chart
+            # Show Speedometer Gauge
+            show_speedometer(strength)
+
+            # Show Character Count Bar Chart
+            st.write("### Character Count Breakdown")
+            visualize_character_counts(char_counts)
 
             if feedback:
                 st.write("**Feedback:**")
@@ -163,6 +174,10 @@ def main():
 
             char_counts = count_character_types(password)
 
+            # Show Character Count Bar Chart for Generated Password
+            st.write("### Character Count Breakdown")
+            visualize_character_counts(char_counts)
+
     # Move Analytics Dashboard to Sidebar
     st.sidebar.header("📊 Analytics Dashboard")
 
@@ -173,13 +188,6 @@ def main():
     st.sidebar.subheader("Password Strength Distribution")
     for strength, count in analytics["strength_distribution"].items():
         st.sidebar.write(f"- **{strength}:** {'Yes' if count else 'No'}")
-
-    # Updated Custom Rules Usage
-    st.sidebar.subheader("Custom Rules Usage")
-    st.sidebar.write(f"- **Require Uppercase:** {'Yes' if char_counts.get('Uppercase', 0) == 0 else 'No'}")
-    st.sidebar.write(f"- **Require Lowercase:** {'Yes' if char_counts.get('Lowercase', 0) == 0 else 'No'}")
-    st.sidebar.write(f"- **Require Digit:** {'Yes' if char_counts.get('Digits', 0) == 0 else 'No'}")
-    st.sidebar.write(f"- **Require Special Character:** {'Yes' if char_counts.get('Special Characters', 0) == 0 else 'No'}")
 
     if analytics["generated_password_lengths"]:
         avg_length = sum(analytics["generated_password_lengths"]) / len(analytics["generated_password_lengths"])
