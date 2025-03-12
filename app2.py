@@ -192,9 +192,9 @@ def main():
     st.sidebar.write(f"- **Password Strength Checks:** {analytics['password_strength_checks']}")
     st.sidebar.write(f"- **Password Generations:** {analytics['password_generations']}")
 
-    st.sidebar.subheader("Password Strength Distribution")
-    for strength, count in analytics["strength_distribution"].items():
-        st.sidebar.write(f"- **{strength}:** {'Yes' if count else 'No'}")
+    st.sidebar.subheader("Custom Rule Usage")
+    for key, label in zip(char_counts.keys(), ["Require Uppercase", "Require Lowercase", "Require Digit", "Require Special Character"]):
+        st.sidebar.write(f"- **{label}:** {'Yes' if char_counts.get(key, 0) == 0 else 'No'}")
 
     if analytics["generated_password_lengths"]:
         avg_length = sum(analytics["generated_password_lengths"]) / len(analytics["generated_password_lengths"])
