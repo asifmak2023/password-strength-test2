@@ -1,4 +1,9 @@
 streamlit
-secrets
 pandas
+numpy
+seaborn
+matplotlib
 altair
+plotly
+pyopenssl 
+
