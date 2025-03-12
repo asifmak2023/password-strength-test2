@@ -154,12 +154,12 @@ def main():
             visualize_character_counts(char_counts)
 
     with tab2:
-        st.header("🔑 Generate Strong Password")
-        gen_length = st.slider("Password Length", 8, 20, 12)
-        include_upper = st.checkbox("Include Uppercase Letters", True)
-        include_lower = st.checkbox("Include Lowercase Letters", True)
-        include_digits = st.checkbox("Include Digits", True)
-        include_special = st.checkbox("Include Special Characters", True)
+    st.header("🔑 Generate Strong Password")
+    gen_length = st.slider("Password Length", 8, 20, 12)
+    include_upper = st.checkbox("Include Uppercase Letters", True)
+    include_lower = st.checkbox("Include Lowercase Letters", True)
+    include_digits = st.checkbox("Include Digits", True)
+    include_special = st.checkbox("Include Special Characters", True)
 
     password = ""
     
