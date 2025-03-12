@@ -12,6 +12,7 @@ analytics = {
     "password_generations": 0,
     "strength_distribution": {"Strong": 0, "Moderate": 0, "Weak": 0},
     "generated_password_lengths": [],
+    "custom_rules_usage": {"require_upper": 0, "require_lower": 0, "require_digit": 0, "require_special": 0},
 }
 
 # Function to count character types in a password
@@ -36,21 +37,25 @@ def check_password_strength(password, min_length=8, require_upper=True, require_
 
     if require_upper and char_counts["Uppercase"] > 0:
         strength += 1
+        analytics["custom_rules_usage"]["require_upper"] += 1
     elif require_upper:
         feedback.append("Password should contain at least one uppercase letter.")
 
     if require_lower and char_counts["Lowercase"] > 0:
         strength += 1
+        analytics["custom_rules_usage"]["require_lower"] += 1
     elif require_lower:
         feedback.append("Password should contain at least one lowercase letter.")
 
     if require_digit and char_counts["Digits"] > 0:
         strength += 1
+        analytics["custom_rules_usage"]["require_digit"] += 1
     elif require_digit:
         feedback.append("Password should contain at least one number.")
 
     if require_special and char_counts["Special Characters"] > 0:
         strength += 1
+        analytics["custom_rules_usage"]["require_special"] += 1
     elif require_special:
         feedback.append("Password should contain at least one special character.")
 
@@ -160,16 +165,12 @@ def main():
     with tab2:
         st.header("🔑 Generate Strong Password")
         gen_length = st.slider("Password Length", 8, 20, 12)
-        include_upper = st.checkbox("Include Uppercase Letters", True)
-        include_lower = st.checkbox("Include Lowercase Letters", True)
-        include_digits = st.checkbox("Include Digits", True)
-        include_special = st.checkbox("Include Special Characters", True)
 
         if st.button("Generate Password"):
             analytics["password_generations"] += 1
             analytics["generated_password_lengths"].append(gen_length)
 
-            password = generate_password(gen_length, include_upper, include_lower, include_digits, include_special)
+            password = generate_password(gen_length, require_upper, require_lower, require_digit, require_special)
             st.write(f"**Generated Password:** `{password}`")
 
             char_counts = count_character_types(password)
@@ -183,12 +184,9 @@ def main():
 
     # Sidebar Analytics
     st.sidebar.header("📊 Analytics Dashboard")
-    st.sidebar.write(f"- **Password Strength Checks:** {analytics['password_strength_checks']}")
-    st.sidebar.write(f"- **Password Generations:** {analytics['password_generations']}")
-
-    st.sidebar.subheader("Password Strength Distribution")
-    for strength, count in analytics["strength_distribution"].items():
-        st.sidebar.write(f"- **{strength}:** {count}")
+    st.sidebar.subheader("Custom Rule Usage")
+    for rule, count in analytics["custom_rules_usage"].items():
+        st.sidebar.write(f"- **{rule.replace('_', ' ').title()}**: {count}")
 
     if analytics["generated_password_lengths"]:
         avg_length = sum(analytics["generated_password_lengths"]) / len(analytics["generated_password_lengths"])

@@ -2,3 +2,5 @@ streamlit
 re
 secrets
 string
+pandas
+altair
