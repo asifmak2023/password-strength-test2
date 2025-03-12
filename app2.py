@@ -4,7 +4,7 @@ import secrets
 import string
 import pandas as pd
 import altair as alt
-import plotly.graph_objects as go  # For speedometer gauge chart
+import plotly.graph_objects as go
 
 # Initialize analytics dictionary
 analytics = {
@@ -71,39 +71,39 @@ def generate_password(length=12, include_upper=True, include_lower=True, include
     ])
     return ''.join(secrets.choice(characters) for _ in range(length)) if characters else "No characters selected."
 
-# Function to visualize character counts using Altair
+# Function to visualize character counts
 def visualize_character_counts(char_counts):
     char_counts_data = pd.DataFrame({"Character Type": list(char_counts.keys()), "Count": list(char_counts.values())})
 
-    char_chart = alt.Chart(char_counts_data).mark_bar(size=40).encode(
+    char_chart = alt.Chart(char_counts_data).mark_bar().encode(
         x=alt.X("Character Type:N", title="Character Type"),
         y=alt.Y("Count:Q", title="Count"),
         color=alt.Color("Character Type:N", legend=None),
         tooltip=["Character Type", "Count"]
-    ).properties(width=400, height=300, title="Character Type Breakdown")
+    ).properties(width=400, height=300, title="Character Count Visualization")
 
     return char_chart
 
-# Function to show a speedometer gauge for password strength
+# Function to create a speedometer chart
 def show_speedometer(strength):
-    value_map = {"Weak": 30, "Moderate": 60, "Strong": 100}
-    value = value_map.get(strength, 0)
+    categories = {"Weak": 1, "Moderate": 2, "Strong": 3}
+    value = categories.get(strength, 1)
 
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=value,
-        title={"text": "Password Strength", "font": {"size": 20}},
+        title={"text": "Password Strength"},
         gauge={
-            "axis": {"range": [0, 100]},
+            "axis": {"range": [0, 3], "tickvals": [1, 2, 3], "ticktext": ["Weak", "Moderate", "Strong"]},
+            "bar": {"color": "black"},
             "steps": [
-                {"range": [0, 40], "color": "red"},
-                {"range": [40, 70], "color": "yellow"},
-                {"range": [70, 100], "color": "green"}
-            ],
-            "bar": {"color": "black"}
+                {"range": [0, 1], "color": "red"},
+                {"range": [1, 2], "color": "yellow"},
+                {"range": [2, 3], "color": "green"},
+            ]
         }
     ))
-
+    
     return fig
 
 # Streamlit app
@@ -146,11 +146,9 @@ def main():
             st.write(f"**Strength:** {color} {strength}")
 
             # Display both graphs side by side
-            col1, col2 = st.columns([1, 1])
-
+            col1, col2 = st.columns(2)
             with col1:
-                st.plotly_chart(show_speedometer(strength), use_container_width=True)
-
+                st.plotly_chart(show_speedometer(strength), use_container_width=True, key="strength_meter_input")
             with col2:
                 st.altair_chart(visualize_character_counts(char_counts), use_container_width=True)
 
@@ -176,25 +174,21 @@ def main():
 
             char_counts = count_character_types(password)
 
-            # Display both graphs side by side for generated password
-            col1, col2 = st.columns([1, 1])
-
+            # Display both graphs side by side
+            col1, col2 = st.columns(2)
             with col1:
-                st.plotly_chart(show_speedometer("Moderate"), use_container_width=True)
-
+                st.plotly_chart(show_speedometer("Moderate"), use_container_width=True, key="strength_meter_generated")
             with col2:
                 st.altair_chart(visualize_character_counts(char_counts), use_container_width=True)
 
-    # Move Analytics Dashboard to Sidebar
+    # Sidebar Analytics
     st.sidebar.header("📊 Analytics Dashboard")
-
-    st.sidebar.subheader("User Interactions")
     st.sidebar.write(f"- **Password Strength Checks:** {analytics['password_strength_checks']}")
     st.sidebar.write(f"- **Password Generations:** {analytics['password_generations']}")
 
-    st.sidebar.subheader("Custom Rule Usage")
-    for key, label in zip(char_counts.keys(), ["Require Uppercase", "Require Lowercase", "Require Digit", "Require Special Character"]):
-        st.sidebar.write(f"- **{label}:** {'Yes' if char_counts.get(key, 0) == 0 else 'No'}")
+    st.sidebar.subheader("Password Strength Distribution")
+    for strength, count in analytics["strength_distribution"].items():
+        st.sidebar.write(f"- **{strength}:** {count}")
 
     if analytics["generated_password_lengths"]:
         avg_length = sum(analytics["generated_password_lengths"]) / len(analytics["generated_password_lengths"])
