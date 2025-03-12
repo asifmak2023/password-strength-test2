@@ -154,42 +154,24 @@ def main():
             visualize_character_counts(char_counts)
 
     with tab2:
-    st.header("🔑 Generate Strong Password")
-    gen_length = st.slider("Password Length", 8, 20, 12)
-    include_upper = st.checkbox("Include Uppercase Letters", True)
-    include_lower = st.checkbox("Include Lowercase Letters", True)
-    include_digits = st.checkbox("Include Digits", True)
-    include_special = st.checkbox("Include Special Characters", True)
+        st.header("🔑 Generate Strong Password")
+        gen_length = st.slider("Password Length", 8, 20, 12)
+        include_upper = st.checkbox("Include Uppercase Letters", True)
+        include_lower = st.checkbox("Include Lowercase Letters", True)
+        include_digits = st.checkbox("Include Digits", True)
+        include_special = st.checkbox("Include Special Characters", True)
 
-    password = ""
-    
-    if st.button("Generate Password"):
-        analytics["password_generations"] += 1
-        analytics["generated_password_lengths"].append(gen_length)
-        password = generate_password(gen_length, include_upper, include_lower, include_digits, include_special)
-    
-    # Display the generated password
-    if password:
-        st.text_input("Generated Password", password, key="generated_password")
+        if st.button("Generate Password"):
+            analytics["password_generations"] += 1
+            analytics["generated_password_lengths"].append(gen_length)
 
-        # Copy Button (Using JavaScript)
-        st.markdown(
-            """
-            <button onclick="copyToClipboard()" style="background-color: #007bff; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;">
-                📋 Copy Password
-            </button>
-            <script>
-                function copyToClipboard() {
-                    var password = document.querySelector('input[data-testid="stTextInput-generated_password"]').value;
-                    navigator.clipboard.writeText(password).then(() => {
-                        alert("Password copied to clipboard!");
-                    });
-                }
-            </script>
-            """,
-            unsafe_allow_html=True
-        )
+            password = generate_password(gen_length, include_upper, include_lower, include_digits, include_special)
+            st.write(f"**Generated Password:** `{password}`")
 
+            char_counts = count_character_types(password)
+
+            st.write("### Dynamic Character Counts")
+            visualize_character_counts(char_counts)
 
     # Move Analytics Dashboard to Sidebar
     
